@@ -22,7 +22,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = MyRenderer.class.getSimpleName();
     private int frameCount;
 
-    private static final int POSITION_COMPONENT_COUNT = 2;
+    private static final int POSITION_COMPONENT_COUNT = 4;
 
     private static final int BYTES_PER_FLOAT = 4;
 
@@ -52,22 +52,22 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         this.context = context;
 
         float[] tableVertices = {
-                // X, Y, R, G, B
+                // X, Y, Z, W,  R, G, B
                 // Triangle Fan
-                0f, 0f, 1f, 1f, 1f,
-                -0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
-                0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
-                0.5f, 0.8f, 0.7f, 0.7f, 0.7f,
-                -0.5f, 0.8f, 0.7f, 0.7f, 0.7f,
-                -0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
+                0f, 0f, 0f, 1.5f,       1f, 1f, 1f,
+                -0.5f, -0.8f, 0f, 1f,   0.7f, 0.7f, 0.7f,
+                0.5f, -0.8f, 0f, 1f,    0.7f, 0.7f, 0.7f,
+                0.5f, 0.8f, 0f, 2f,     0.7f, 0.7f, 0.7f,
+                -0.5f, 0.8f, 0f, 2f,    0.7f, 0.7f, 0.7f,
+                -0.5f, -0.8f, 0f, 1f,   0.7f, 0.7f, 0.7f,
 
                 // Middle Line
-                -0.5f, 0f, 1f, 0f, 0f,
-                0.5f, 0f, 1f, 0f, 0f,
+                -0.5f, 0f, 0f, 1.5f,    1f, 0f, 0f,
+                0.5f, 0f, 0f, 1.5f,     1f, 0f, 0f,
 
                 // Mallets
-                0f, -0.4f, 0f, 0f, 1f,
-                0f, 0.4f, 1f, 0f, 0f,
+                0f, -0.4f, 0f, 1.25f,   0f, 0f, 1f,
+                0f, 0.4f, 0f, 1.75f,    1f, 0f, 0f,
         };
 
         vertexData = ByteBuffer.allocateDirect(tableVertices.length * BYTES_PER_FLOAT)
