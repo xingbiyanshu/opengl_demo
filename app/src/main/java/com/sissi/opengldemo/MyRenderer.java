@@ -1,6 +1,7 @@
 package com.sissi.opengldemo;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 
@@ -27,30 +28,40 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private final FloatBuffer vertexData;
     private int program;
 
-    private static final String U_COLOR = "u_Color";
-    private int uColorLocation;
     private static final String A_POSITION = "a_Position";
     private int aPositionLocation;
 
+    private static final String A_COLOR = "a_Color";
+    private int aColorLocation;
+    private static final int COLOR_COMPONENT_COUNT = 3;
+    private static final int STRIDE = (POSITION_COMPONENT_COUNT+COLOR_COMPONENT_COUNT)*BYTES_PER_FLOAT;
+
     private Context context;
+
+    private float red = Color.red(Color.RED) / 255f;
+    private float green = Color.red(Color.GREEN) / 255f;
+    private float blue = Color.red(Color.BLUE) / 255f;
 
     public MyRenderer(Context context) {
         this.context = context;
 
         float[] tableVertices = {
-                -0.5f, -0.5f,
-                0.5f, 0.5f,
-                -0.5f, 0.5f,
+                // X, Y, R, G, B
+                // Triangle Fan
+                0f, 0f, 1f, 1f, 1f,
+                -0.5f, -0.5f, 0.7f, 0.7f, 0.7f,
+                0.5f, -0.5f, 0.7f, 0.7f, 0.7f,
+                0.5f, 0.5f, 0.7f, 0.7f, 0.7f,
+                -0.5f, 0.5f, 0.7f, 0.7f, 0.7f,
+                -0.5f, -0.5f, 0.7f, 0.7f, 0.7f,
 
-                -0.5f, -0.5f,
-                0.5f, -0.5f,
-                0.5f, 0.5f,
+                // Middle Line
+                -0.5f, 0f, 1f, 0f, 0f,
+                0.5f, 0f, 1f, 0f, 0f,
 
-                -0.5f, 0f,
-                0.5f, 0f,
-
-                0f, -0.25f,
-                0f, 0.25f,
+                // Mallets
+                0f, -0.25f, 0f, 0f, 1f,
+                0f, 0.25f, 1f, 0f, 0f,
         };
 
         vertexData = ByteBuffer.allocateDirect(tableVertices.length * BYTES_PER_FLOAT)
@@ -76,13 +87,16 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         glUseProgram(program);
 
-        uColorLocation = glGetUniformLocation(program, U_COLOR);
+        aColorLocation = glGetAttribLocation(program, A_COLOR);
         aPositionLocation = glGetAttribLocation(program, A_POSITION);
 
         vertexData.position(0);
-        glVertexAttribPointer(aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, 0, vertexData);
-
+        glVertexAttribPointer(aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, vertexData);
         glEnableVertexAttribArray(aPositionLocation);
+
+        vertexData.position(POSITION_COMPONENT_COUNT);
+        glVertexAttribPointer(aColorLocation, COLOR_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, vertexData);
+        glEnableVertexAttribArray(aColorLocation);
 
     }
 
@@ -97,16 +111,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 //        Log.i(TAG, "onDrawFrame "+ ++frameCount);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUniform4f(uColorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 6);
 
-        glUniform4f(uColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
         glDrawArrays(GL_LINES, 6, 2);
 
-        glUniform4f(uColorLocation, 0.0f, 0.0f, 1.0f, 1.0f);
         glDrawArrays(GL_POINTS, 8, 1);
 
-        glUniform4f(uColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
         glDrawArrays(GL_POINTS, 9, 1);
     }
+
 }
