@@ -3,6 +3,7 @@ package com.sissi.opengldemo;
 import android.content.Context;
 import android.graphics.Color;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.util.Log;
 
 import com.sissi.opengldemo.util.ShaderHelper;
@@ -35,6 +36,11 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private int aColorLocation;
     private static final int COLOR_COMPONENT_COUNT = 3;
     private static final int STRIDE = (POSITION_COMPONENT_COUNT+COLOR_COMPONENT_COUNT)*BYTES_PER_FLOAT;
+
+    private static final String U_MATRIX = "u_Matrix";
+    private int uMatrixLocation;
+    private final float[] projMatrix = new float[16];
+
 
     private Context context;
 
@@ -89,6 +95,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
         aColorLocation = glGetAttribLocation(program, A_COLOR);
         aPositionLocation = glGetAttribLocation(program, A_POSITION);
+        uMatrixLocation = glGetUniformLocation(program, U_MATRIX);
 
         vertexData.position(0);
         glVertexAttribPointer(aPositionLocation, POSITION_COMPONENT_COUNT, GL_FLOAT, false, STRIDE, vertexData);
@@ -104,12 +111,22 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         Log.i(TAG, "onSurfaceChanged, width="+width+" height="+height);
         glViewport(0, 0, width, height);
+
+        float aspectRatio = width > height ? (float)width/height : (float)height/width;
+        if (width > height){
+            Matrix.orthoM(projMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, -1f, 1f);
+        }else{
+            Matrix.orthoM(projMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio, -1f, 1f);
+        }
+
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
 //        Log.i(TAG, "onDrawFrame "+ ++frameCount);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glUniformMatrix4fv(uMatrixLocation, 1, false, projMatrix, 0);
 
         glDrawArrays(GL_TRIANGLE_FAN, 0, 6);
 
