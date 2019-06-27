@@ -22,7 +22,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = MyRenderer.class.getSimpleName();
     private int frameCount;
 
-    private static final int POSITION_COMPONENT_COUNT = 4;
+    private static final int POSITION_COMPONENT_COUNT = 2;
 
     private static final int BYTES_PER_FLOAT = 4;
 
@@ -41,6 +41,8 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     private int uMatrixLocation;
     private final float[] projMatrix = new float[16];
 
+    private final  float[] modelMatrix = new float[16];
+
 
     private Context context;
 
@@ -52,22 +54,22 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         this.context = context;
 
         float[] tableVertices = {
-                // X, Y, Z, W,  R, G, B
+                // X, Y,  R, G, B
                 // Triangle Fan
-                0f, 0f, 0f, 1.5f,       1f, 1f, 1f,
-                -0.5f, -0.8f, 0f, 1f,   0.7f, 0.7f, 0.7f,
-                0.5f, -0.8f, 0f, 1f,    0.7f, 0.7f, 0.7f,
-                0.5f, 0.8f, 0f, 2f,     0.7f, 0.7f, 0.7f,
-                -0.5f, 0.8f, 0f, 2f,    0.7f, 0.7f, 0.7f,
-                -0.5f, -0.8f, 0f, 1f,   0.7f, 0.7f, 0.7f,
+                0f, 0f,    1f, 1f, 1f,
+                -0.5f, -0.8f,    0.7f, 0.7f, 0.7f,
+                0.5f, -0.8f,    0.7f, 0.7f, 0.7f,
+                0.5f, 0.8f,      0.7f, 0.7f, 0.7f,
+                -0.5f, 0.8f,     0.7f, 0.7f, 0.7f,
+                -0.5f, -0.8f,     0.7f, 0.7f, 0.7f,
 
                 // Middle Line
-                -0.5f, 0f, 0f, 1.5f,    1f, 0f, 0f,
-                0.5f, 0f, 0f, 1.5f,     1f, 0f, 0f,
+                -0.5f, 0f,    1f, 0f, 0f,
+                0.5f, 0f,      1f, 0f, 0f,
 
                 // Mallets
-                0f, -0.4f, 0f, 1.25f,   0f, 0f, 1f,
-                0f, 0.4f, 0f, 1.75f,    1f, 0f, 0f,
+                0f, -0.4f,    0f, 0f, 1f,
+                0f, 0.4f,      1f, 0f, 0f,
         };
 
         vertexData = ByteBuffer.allocateDirect(tableVertices.length * BYTES_PER_FLOAT)
@@ -112,13 +114,14 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Log.i(TAG, "onSurfaceChanged, width="+width+" height="+height);
         glViewport(0, 0, width, height);
 
-        float aspectRatio = width > height ? (float)width/height : (float)height/width;
-        if (width > height){
-            Matrix.orthoM(projMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, -1f, 1f);
-        }else{
-            Matrix.orthoM(projMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio, -1f, 1f);
-        }
+        Matrix.perspectiveM(projMatrix, 0,45, (float) width/height, 1f, 10f);
 
+        Matrix.setIdentityM(modelMatrix, 0);
+        Matrix.translateM(modelMatrix, 0, 0f, 0f, -2.5f); // 平移
+        Matrix.rotateM(modelMatrix, 0, -60f, 1f, 0f, 0f); // 旋转
+        final float[] tmp = new float[16];
+        Matrix.multiplyMM(tmp, 0, projMatrix, 0, modelMatrix, 0);
+        System.arraycopy(tmp, 0, projMatrix, 0, tmp.length);
     }
 
     @Override
